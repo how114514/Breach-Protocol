@@ -6,11 +6,12 @@ public class AimController : MonoBehaviour
     [Header("References")]
     public Camera cam;            // 玩家使用的相机
     public Transform player;      // 玩家身体根节点
-    public Transform weaponRoot;  // 枪械挂点（必须是 Player 的子物体）
+    public Transform weaponRoot;  // 枪械挂点（Player 的子物体）
 
     [Header("Aim Settings")]
     public float aimHeight = 1f;                     // 瞄准平面高度（角色胸口/枪口高度）
-    public float aimDeadZone = 0.5f;                 // 死区半径：鼠标距 Player 小于该值进入死区模式
+    public float aimDeadZone = 0.5f;                 // 完全由玩家方向控制的范围（鼠标距玩家小于此值）
+    public float aimTransitionRange = 1.0f;          // 两个方向融合的过渡范围（超过 deadZone+range 后武器方向 100%）
     public Vector3 weaponRotationOffset = new Vector3(0, 180, 0); // 枪械模型朝向修正
 
     [Header("Smooth")]
@@ -33,40 +34,42 @@ public class AimController : MonoBehaviour
         if (!aimPlane.Raycast(ray, out float enter)) return;
         Vector3 targetPosition = ray.GetPoint(enter);
 
-        // 5. 鼠标到 Player 的水平距离，决定进入哪种瞄准模式
-        Vector3 toPlayer = targetPosition - player.position;
-        toPlayer.y = 0f;
-        float distToPlayer = toPlayer.magnitude;
+        // 5. 同时计算两个瞄准方向（都忽略 Y 轴）
+        Vector3 playerAim = targetPosition - player.position;
+        playerAim.y = 0f;
+        Vector3 weaponAim = targetPosition - weaponRoot.position;
+        weaponAim.y = 0f;
 
-        // 6. 帧率无关的平滑系数
-        float smooth = 1f - Mathf.Exp(-rotationSmoothSpeed * Time.deltaTime);
-        Vector3 direction;
+        // 目标点与玩家/枪口重合时无法求方向，保持当前朝向
+        if (playerAim.sqrMagnitude < 0.0001f && weaponAim.sqrMagnitude < 0.0001f) return;
 
-        if (distToPlayer < aimDeadZone)
-        {
-            // ===== 模式一：死区内 =====
-            // 以 Player 位置为瞄准起点，枪的位置偏移不参与计算
-            direction = targetPosition - player.position;
-            direction.y = 0f;
-            if (direction.sqrMagnitude < 0.0001f) return;
+        // 归一化（若其中一个退化，用另一个兜底）
+        Vector3 playerDir = playerAim.sqrMagnitude > 0.0001f ? playerAim.normalized : weaponAim.normalized;
+        Vector3 weaponDir = weaponAim.sqrMagnitude > 0.0001f ? weaponAim.normalized : playerAim.normalized;
 
-            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
-            player.rotation = Quaternion.Slerp(player.rotation, targetRotation, smooth);
-            weaponRoot.rotation = Quaternion.Slerp(weaponRoot.rotation,
-                targetRotation * Quaternion.Euler(weaponRotationOffset), smooth);
-        }
+        // 6. 根据鼠标距 Player 的距离计算武器方向的权重（连续过渡，无硬切换）
+        float distToPlayer = playerAim.magnitude;
+        float weaponWeight;
+        if (aimTransitionRange <= 0.0001f)
+            weaponWeight = distToPlayer >= aimDeadZone ? 1f : 0f;  // 兼容 transitionRange=0 的极端情况
         else
-        {
-            // ===== 模式二：死区外 =====
-            // 以 WeaponRoot 位置为瞄准起点，枪械精确朝向鼠标
-            direction = targetPosition - weaponRoot.position;
-            direction.y = 0f;
-            if (direction.sqrMagnitude < 0.0001f) return;
+            weaponWeight = Mathf.Clamp01((distToPlayer - aimDeadZone) / aimTransitionRange);
+        // dist <= deadZone            -> weaponWeight = 0  （100% 玩家方向）
+        // dist >= deadZone + range    -> weaponWeight = 1  （100% 武器方向）
+        // 中间区域                     -> 线性平滑过渡
 
-            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
-            weaponRoot.rotation = Quaternion.Slerp(weaponRoot.rotation,
-                targetRotation * Quaternion.Euler(weaponRotationOffset), smooth);
-            player.rotation = Quaternion.Slerp(player.rotation, targetRotation, smooth);
-        }
+        // 7. 融合两个方向，得到最终瞄准方向
+        Vector3 finalAim = Vector3.Slerp(playerDir, weaponDir, weaponWeight);
+
+        // 8. 基础瞄准旋转（纯 Y 轴）再叠加武器模型偏移
+        Quaternion targetRotation = Quaternion.LookRotation(finalAim);
+        Quaternion targetWeaponRotation = targetRotation * Quaternion.Euler(weaponRotationOffset);
+
+        // 9. 帧率无关的平滑系数
+        float smooth = 1f - Mathf.Exp(-rotationSmoothSpeed * Time.deltaTime);
+
+        // 10. 平滑插值（Player 与 WeaponRoot 同步到同一融合方向）
+        player.rotation = Quaternion.Slerp(player.rotation, targetRotation, smooth);
+        weaponRoot.rotation = Quaternion.Slerp(weaponRoot.rotation, targetWeaponRotation, smooth);
     }
 }

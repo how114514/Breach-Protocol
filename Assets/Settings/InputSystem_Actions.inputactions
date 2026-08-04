@@ -17,7 +17,7 @@
                     "priority": 0
                 },
                 {
-                    "name": "Attack",
+                    "name": "Shoot",
                     "type": "Button",
                     "id": "6c2ab1b8-8984-453a-af3d-a3c78ae1679a",
                     "expectedControlType": "",
@@ -90,7 +90,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Attack",
+                    "action": "Shoot",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
