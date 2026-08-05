@@ -6,26 +6,36 @@ public class WeaponShoot : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject bulletPrefab;   // 子弹预制体
     [SerializeField] private Transform firePoint;       // 枪口发射点（其 -Z 方向为枪口朝向）
-    [SerializeField] private InputActionReference shootAction; // Input System 的开火输入
+    [SerializeField] private InputActionReference shootAction; // Input System 的开火输入（按住持续射击）
 
     [Header("Muzzle Flash")]
     [SerializeField] private MuzzleFlashController muzzleFlashController; // 枪口闪光控制器（粒子 + 灯光，替代自带 WFX_LightFlicker）
 
+    [Header("Fire Rate")]
+    [SerializeField] private float fireRate = 0.1f;     // 射击间隔，每隔多少秒发射一发子弹
+
+    private float nextFireTime; // 下一次允许射击的时间（Time.time）
+
     private void OnEnable()
     {
         if (shootAction != null)
-            shootAction.action.performed += OnShoot;
+            shootAction.action.Enable();
     }
 
     private void OnDisable()
     {
         if (shootAction != null)
-            shootAction.action.performed -= OnShoot;
+            shootAction.action.Disable();
     }
 
-    private void OnShoot(InputAction.CallbackContext context)
+    private void Update()
     {
-        Fire();
+        // 按住 Shoot 且已到达下一次射击时间，则开火（每帧轮询持续输入状态）
+        if (shootAction != null && shootAction.action.IsPressed() && Time.time >= nextFireTime)
+        {
+            Fire();
+            nextFireTime = Time.time + fireRate;
+        }
     }
 
     private void Fire()
