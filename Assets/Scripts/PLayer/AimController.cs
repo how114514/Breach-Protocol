@@ -12,7 +12,6 @@ public class AimController : MonoBehaviour
     public float aimHeight = 1f;                     // 瞄准平面高度（角色胸口/枪口高度）
     public float aimDeadZone = 0.5f;                 // 完全由玩家方向控制的范围（鼠标距玩家小于此值）
     public float aimTransitionRange = 1.0f;          // 两个方向融合的过渡范围（超过 deadZone+range 后武器方向 100%）
-    public Vector3 weaponRotationOffset = new Vector3(0, 180, 0); // 枪械模型朝向修正
 
     [Header("Smooth")]
     public float rotationSmoothSpeed = 10f;          // 旋转平滑速度，越大越快
@@ -63,13 +62,12 @@ public class AimController : MonoBehaviour
 
         // 8. 基础瞄准旋转（纯 Y 轴）再叠加武器模型偏移
         Quaternion targetRotation = Quaternion.LookRotation(finalAim);
-        Quaternion targetWeaponRotation = targetRotation * Quaternion.Euler(weaponRotationOffset);
 
         // 9. 帧率无关的平滑系数
         float smooth = 1f - Mathf.Exp(-rotationSmoothSpeed * Time.deltaTime);
 
         // 10. 平滑插值（Player 与 WeaponRoot 同步到同一融合方向）
         player.rotation = Quaternion.Slerp(player.rotation, targetRotation, smooth);
-        weaponRoot.rotation = Quaternion.Slerp(weaponRoot.rotation, targetWeaponRotation, smooth);
+        weaponRoot.rotation = Quaternion.Slerp(weaponRoot.rotation, targetRotation, smooth);
     }
 }

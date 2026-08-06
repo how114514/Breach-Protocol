@@ -7,7 +7,6 @@
           <value>
             <TabSessionState>
               <option name="provider" value="claude" />
-              <option name="sessionId" value="5fa0b737-9a89-40cc-8ad5-18bd52aa158c" />
               <option name="cwd" value="D:\ED\Breach Protocol" />
               <option name="model" value="claude-sonnet-5[1m]" />
               <option name="permissionMode" value="acceptEdits" />

@@ -16,6 +16,19 @@ public class WeaponShoot : MonoBehaviour
 
     private float nextFireTime; // 下一次允许射击的时间（Time.time）
 
+    private WeaponObstacleDetector obstacleDetector; // 枪械障碍物检测（挂在 WeaponRoot 或其子/父物体上）
+
+    private void Awake()
+    {
+        // 获取枪械障碍物检测组件：先查同一 GameObject，找不到再搜子物体和父物体，
+        // 保证 WeaponObstacleDetector 无论挂在 WeaponRoot 还是其子/父物体上都能被引用。
+        obstacleDetector = GetComponent<WeaponObstacleDetector>();
+        if (obstacleDetector == null)
+            obstacleDetector = GetComponentInChildren<WeaponObstacleDetector>();
+        if (obstacleDetector == null)
+            obstacleDetector = GetComponentInParent<WeaponObstacleDetector>();
+    }
+
     private void OnEnable()
     {
         if (shootAction != null)
@@ -40,6 +53,13 @@ public class WeaponShoot : MonoBehaviour
 
     private void Fire()
     {
+        // 0. 障碍物检测：开火前读取 IsBlocked，被 Obstacle 阻挡时取消开火（不生成子弹、不触发枪口闪光）。
+        bool blocked = obstacleDetector != null && obstacleDetector.IsBlocked;
+        if (blocked)
+        {
+            return;
+        }
+
         if (firePoint == null) return;
 
         // 1. 触发枪口闪光：由 MuzzleFlashController 控制粒子重播 + 灯光短暂亮起并自动关闭。
