@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 76561719}
   - component: {fileID: 76561721}
   - component: {fileID: 76561720}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: WFX_MF FPS RIFLE1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5213,7 +5213,7 @@ GameObject:
   - component: {fileID: 328846181}
   - component: {fileID: 328846183}
   - component: {fileID: 328846182}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Mag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5473,7 +5473,7 @@ GameObject:
   - component: {fileID: 384118189}
   - component: {fileID: 384118191}
   - component: {fileID: 384118190}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Bolt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5977,7 +5977,7 @@ GameObject:
   - component: {fileID: 605302166}
   - component: {fileID: 605302168}
   - component: {fileID: 605302167}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6135,7 +6135,7 @@ GameObject:
   - component: {fileID: 643540197}
   - component: {fileID: 643540199}
   - component: {fileID: 643540198}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Sparks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11134,7 +11134,7 @@ GameObject:
   - component: {fileID: 1205197287}
   - component: {fileID: 1205197289}
   - component: {fileID: 1205197288}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Glow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16030,6 +16030,7 @@ GameObject:
   - component: {fileID: 1260799942}
   - component: {fileID: 1260799941}
   - component: {fileID: 1260799940}
+  - component: {fileID: 1260799943}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
@@ -16227,6 +16228,7 @@ MonoBehaviour:
   strafeSpeed: 2
   turnSpeed: 180
   arrivalDistance: 0.15
+  navAgent: {fileID: 0}
 --- !u!114 &1260799941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16253,6 +16255,8 @@ MonoBehaviour:
   - {fileID: 1166749939}
   - {fileID: 588501150}
   patrolWaitTime: 2
+  lookRotateSpeed: 180
+  lookRange: 60
   movement: {fileID: 1260799940}
 --- !u!114 &1260799942
 MonoBehaviour:
@@ -16272,12 +16276,54 @@ MonoBehaviour:
   patrolController: {fileID: 1260799941}
   movement: {fileID: 1260799940}
   detectionRange: 30
-  detectionFov: 180
   eyeHeight: 1
   obstacleMask:
     serializedVersion: 2
     m_Bits: 256
-  lostTargetTime: 10
+  patrolFov: 120
+  alertFov: 270
+  combatFov: 180
+  alertSearchRotateSpeed: 180
+  alertSearchAngle: 180
+  confirmAngle: 10
+  reactionTime: 0.5
+  combatMinDistance: 3
+  combatMaxDistance: 12
+  combatMoveSpeed: 3.5
+  playerPredictSpeed: 4
+  playerPredictMaxDistance: 12
+  debugLogState: 0
+  showVisionDebug: 0
+  visionBoundaryColor: {r: 0.2, g: 0.9, b: 1, a: 0.7}
+  visionConeColor: {r: 0.2, g: 0.9, b: 1, a: 0.12}
+  canSeeColor: {r: 0, g: 1, b: 0, a: 1}
+  cannotSeeColor: {r: 1, g: 0, b: 0, a: 1}
+  occludedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lastKnownColor: {r: 1, g: 0, b: 1, a: 1}
+  visionFanSegments: 12
+  visionArcSegments: 36
+--- !u!195 &1260799943
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1260799931}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &1311378851
 GameObject:
   m_ObjectHideFlags: 0
@@ -16321,7 +16367,7 @@ GameObject:
   - component: {fileID: 1469936454}
   - component: {fileID: 1469936453}
   - component: {fileID: 1469936451}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: AK74
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16653,7 +16699,7 @@ GameObject:
   - component: {fileID: 2062165815}
   - component: {fileID: 2062165817}
   - component: {fileID: 2062165816}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Trigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16741,7 +16787,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2132268485}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
