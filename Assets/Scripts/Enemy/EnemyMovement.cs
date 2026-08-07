@@ -53,7 +53,7 @@ public class EnemyMovement : MonoBehaviour
 
             // 需要朝移动方向转向时才转（战斗时关闭，由瞄准控制器朝玩家转向）
             if (FaceMovementDirection)
-                FaceDirection(target - transform.position);
+                FaceNavMeshMovementDirection(target);
 
             return IsArrived();
         }
@@ -105,6 +105,21 @@ public class EnemyMovement : MonoBehaviour
     {
         if (direction == 0f) return;
         transform.position += transform.right * (direction * speed * Time.deltaTime);
+    }
+
+    /// <summary>
+    /// NavMesh 移动时的转向：跟随 agent 的实际行进方向（velocity），而非目标的直线方向。
+    /// 寻路绕障时路径是弯的——朝向目标直线方向会让敌人"隔着障碍物盯着目标"；
+    /// 跟随 velocity 才能在绕过墙角时自然转向。velocity 为零（寻路中/已到达/未起步）时
+    /// 回退为目标方向，保证朝向不悬空。仍只作用于 FaceMovementDirection=true 的移动状态
+    /// （Patrol / Alert 调查移动），战斗时 FaceMovementDirection=false 不受影响。
+    /// </summary>
+    private void FaceNavMeshMovementDirection(Vector3 target)
+    {
+        Vector3 direction = navAgent.velocity;
+        if (direction.sqrMagnitude < 0.0001f)
+            direction = target - transform.position;
+        FaceDirection(direction);
     }
 
     /// <summary>NavMeshAgent 是否已到达目标点。</summary>
